@@ -4,37 +4,49 @@ var fs = require('fs')
 
 var route = '/Users/akon825/avs'
 
-fs.readdir(route, function(err, files){
+fs.readdir(route, function(err, files) {
+  // 這邊用async做 （一次限制個位數筆）
   files.forEach(function(file){
     console.log(file)
 
-    var avNum = ''
+    //console.log(fs.lstatSync(route + '/' + file).isDirectory())
 
-    if (file.match(/^[0-9]+[-][a-zA-Z]+[0-9]+$/)) {
-      console.log('中了1')
-      //avNum = file.replace(/([a-z\d])([A-Z]+)/g, '$1_$2')
-      avNum = file.replace(/^[0-9]+[-]([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
-      console.log(avNum)
+    // 是資料夾 - 
+    if (fs.lstatSync(route + '/' + file).isDirectory()) {
+
+    } else {
+    // 判斷是不是所有影音檔的副檔名
     }
 
-    if (file.match(/^[0-9]+[a-zA-Z]+[0-9]+$/)) {
-      console.log('中了2')
-      avNum = file.replace(/^[0-9]+([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
-      console.log(avNum)
-    }
-
-    if (file.match(/^[a-zA-Z]+[-][0-9]+$/)) {
-      console.log('中了3')
-      console.log(avNum)
-    }
-
-    if (file.match(/^[a-zA-Z]+[0-9]+$/)) {
-      console.log('中了4')
-      avNum = file.replace(/^([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
-      console.log(avNum)
-    }
+    console.log(getAvNum(file))
   })
 })
+
+function getAvNum(fileName){
+  var avNum = ''
+
+  if (fileName.match(/^[0-9]+[-][a-zA-Z]+[0-9]+$/)) {
+    //avNum = file.replace(/([a-z\d])([A-Z]+)/g, '$1_$2')
+    avNum = fileName.replace(/^[0-9]+[-]([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
+  }
+
+  if (fileName.match(/^[0-9]+[a-zA-Z]+[0-9]+$/)) {
+    avNum = fileName.replace(/^[0-9]+([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
+  }
+
+  if (fileName.match(/^[a-zA-Z]+[-][0-9]+$/)) {
+    avNum = fileName
+  }
+
+  if (fileName.match(/^[a-zA-Z]+[0-9]+$/)) {
+    avNum = fileName.replace(/^([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
+  }
+
+  return avNum
+}
+
+
+
 
 //if (url.match(/^\/change_password/) || url.match(/^\/api\/user\/([0-9]+)\/password/)) {
 
