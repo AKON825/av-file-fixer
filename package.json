@@ -1,0 +1,7 @@
+{
+  "name": "helloworld",
+  "main": "index.html",
+  "dependencies": {
+    "moment": "^2.12.0"
+  }
+}
