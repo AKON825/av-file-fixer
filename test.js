@@ -1,6 +1,4 @@
-var moment = require('moment')
 var fs = require('fs')
-
 
 var route = '/Users/akon825/avs1'
 
@@ -14,15 +12,57 @@ fs.readdir(route, function(err, files) {
     // 是資料夾 - 
     if (fs.lstatSync(route + '/' + file).isDirectory()) {
       avNum = getAvNum(file)
+
+      // 先正名資料夾
+      renameFolder(route + '/' + file, route + '/' + avNum, function(){
+        fs.readdir(route + '/' + avNum, function(err, files) {
+          files.forEach(function(file){
+            
+            if (file.match(/\.mp4$|\.avi$/)) {
+              // 取得副檔名
+              var extraName = file.replace(/.*(\.mp4$|\.avi$)/g, '$1')
+              console.log('副檔名是', extraName)
+
+              // 去掉副檔名
+              var handledName = file.replace(/(.*)\.mp4$|\.avi$/g, '$1')
+              console.log('去除後', handledName)
+              avNum = getAvNum(handledName)
+
+
+              // 將影音檔正名
+              renameFolder(route + '/' + avNum + '/' + file, route + '/' + avNum + '/' + avNum + extraName, function(){
+
+              })
+            } else {
+              // 刪除影音外的檔案
+              fs.unlinkSync(route + '/' + avNum + '/' + file);
+            }
+
+            
+          })
+        })
+      }) 
     } else {
       // 判斷是不是所有影音檔的副檔名
       if (file.match(/\.mp4$|\.avi$/)) {
         console.log('是影音')
 
+        // 取得副檔名
+        var extraName = file.replace(/.*(\.mp4$|\.avi$)/g, '$1')
+        console.log('副檔名是', extraName)
+
         // 去掉副檔名
         var handledName = file.replace(/(.*)\.mp4$|\.avi$/g, '$1')
         console.log('去除後', handledName)
-        avNum = getAvNum(file)
+        avNum = getAvNum(handledName)
+
+        // 新增資料夾
+        mkFolder(route + '/' + avNum, function(){
+          // 移動影片並更名
+          renameFolder(route + '/' + file, route + '/' + avNum + '/' + avNum + extraName, function(){
+
+          }) 
+        })
         //mkFolder(route + '/' + avNum)
       } else {
         // 第一層不是影音和folder的砍掉
@@ -36,7 +76,10 @@ fs.readdir(route, function(err, files) {
 
 function mkFolder(route, cb) {
   fs.mkdir(route, function(err, result){
-  
+    if (err) {
+      console.log('route是', route)
+      console.log('有錯喔' ,err)
+    }
     cb()
   })
 }
@@ -44,7 +87,9 @@ function mkFolder(route, cb) {
 function renameFolder(oldRoute, newRoute, cb) {
   fs.rename(oldRoute, newRoute, function(err, result){
     console.log('修改結束 ', err, result)
-
+    if (err) {
+      console.log('有錯喔' ,err)
+    }
     cb()
   })
 }
