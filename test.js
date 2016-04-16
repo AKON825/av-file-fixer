@@ -13,7 +13,7 @@ function step1 () {
       console.log('開始幹')
       console.log(file)
 
-      var avNum
+      var noteDataFanNum
 
       // 是資料夾 - 
       if (fs.lstatSync(route + '/' + file).isDirectory()) {
@@ -23,10 +23,10 @@ function step1 () {
           return asyncCb()
         }
 
-        avNum = getSaleNumFanNum(file)
-        console.log('avNum=',avNum)
-        if(avNum == '') {
-          console.log('folder avNum not correct', avNum)
+        noteDataFanNum = getNoteDataFanNum(file)
+        console.log('noteDataFanNum=',noteDataFanNum)
+        if(noteDataFanNum == '') {
+          console.log('folder noteDataFanNum not correct', noteDataFanNum)
           console.log('跳過')
           
           return moveToTemp(route + '/' + file, route, file, function(){
@@ -36,8 +36,8 @@ function step1 () {
         }
 
         // 先正名資料夾
-        renameFolder(route + '/' + file, route + '/' + avNum, function(){
-          fs.readdir(route + '/' + avNum, function(err, files) {
+        renameFolder(route + '/' + file, route + '/' + noteDataFanNum, function(){
+          fs.readdir(route + '/' + noteDataFanNum, function(err, files) {
             async.eachLimit(files, 1, function(file, asyncCb2) {
             //files.forEach(function(file){
               
@@ -47,18 +47,18 @@ function step1 () {
 
                 // 去掉副檔名
                 var handledName = file.replace(/(.*)\.mp4$|\.avi$/g, '$1')
-                avNum = getSaleNumFanNum(handledName)
+                noteDataFanNum = getNoteDataFanNum(handledName)
 
 
                 // 將影音檔正名
-                renameFolder(route + '/' + avNum + '/' + file, route + '/' + avNum + '/' + avNum + extraName, function(){
+                renameFolder(route + '/' + noteDataFanNum + '/' + file, route + '/' + noteDataFanNum + '/' + noteDataFanNum + extraName, function(){
                   return asyncCb2()
                 })
               } else {
                 // 刪除影音外的檔案
 
                 // 改成有callback
-                fs.unlinkSync(route + '/' + avNum + '/' + file);
+                fs.unlinkSync(route + '/' + noteDataFanNum + '/' + file);
                 return asyncCb2()
               }
             }, function(err) {
@@ -77,10 +77,10 @@ function step1 () {
 
           // 去掉副檔名
           var handledName = file.replace(/(.*)\.mp4$|\.avi$/g, '$1')
-          avNum = getSaleNumFanNum(handledName)
+          noteDataFanNum = getNoteDataFanNum(handledName)
 
-          if(avNum == '') {
-            console.log('mv avNum not correct', avNum)
+          if(noteDataFanNum == '') {
+            console.log('mv noteDataFanNum not correct', noteDataFanNum)
             console.log('mv移到暫存')
 
             return moveToTemp(route + '/' + file, route, file, function(){
@@ -90,13 +90,13 @@ function step1 () {
 
 
           // 新增資料夾
-          mkFolder(route + '/' + avNum, function(){
+          mkFolder(route + '/' + noteDataFanNum, function(){
             // 移動影片並更名
-            renameFolder(route + '/' + file, route + '/' + avNum + '/' + avNum + extraName, function(){
+            renameFolder(route + '/' + file, route + '/' + noteDataFanNum + '/' + noteDataFanNum + extraName, function(){
               return asyncCb()
             }) 
           })
-          //mkFolder(route + '/' + avNum)
+          //mkFolder(route + '/' + noteDataFanNum)
         } else {
           // 第一層不是影音和folder的砍掉
           fs.unlinkSync(route + '/' + file)
@@ -107,7 +107,7 @@ function step1 () {
       console.log('step 1 done')
     })
 
-       //console.log(getSaleNumFanNum(file))
+       //console.log(getNoteDataFanNum(file))
     //})
   })
 }
@@ -159,20 +159,20 @@ function moveToTemp(fileRoute, rootRoute, fileName, cb) {
 }
 
 
-function getSaleNumFanNum(fileName){
-  // 販售編號
-  var saleNum = ''
+function getNoteDataFanNum(fileName){
+  // 備註資料
+  var noteData = ''
   // 番號
   var fanNum = ''
 
   // 去所有空格
   fileName = fileName.replace(/\s+/g, '') 
 
-  // 先抓出販售編號 ex (GGG--FBSP)
+  // 先抓出備註資料 ex (GGG--FBSP)
   if (fileName.match(/^[(].*[)]/)) {
     console.log('幹', fileName, '有括號啦')
     console.log('乾濕分離1', fileName.replace(/^([(].*[)])(.*)/g, '$1'))
-    saleNum = fileName.replace(/^([(].*[)])(.*)/g, '$1')
+    noteData = fileName.replace(/^([(].*[)])(.*)/g, '$1')
     console.log('乾濕分離2', fileName.replace(/^([(].*[)])(.*)/g, '$2'))
     fileName = fileName.replace(/^([(].*[)])(.*)/g, '$2')
   }
@@ -193,7 +193,14 @@ function getSaleNumFanNum(fileName){
     fanNum = fileName.replace(/^([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
   }
 
-  return saleNum + fanNum
+  var output = noteData + fanNum
+
+  if (fanNum == '') {
+    // 如果找不到番號就不處理
+    output = ''
+  }
+
+  return output
 }
 
 
