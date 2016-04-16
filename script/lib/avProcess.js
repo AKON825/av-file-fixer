@@ -11,23 +11,19 @@ function AvProcess () {
     return new AvProcess()
   }
 
-  this.processByRule1 = function(){
+  this.processByRule1 = function(rule){
     newOk(route, function(){
-      newTemp(route, step1)
+      newTemp(route, function(){
+        return step1(rule)
+      })
     })
-  }
-
-  this.dry = function(){
-    newTemp(route, dryRun)
   }
 }
 
 // 將檔案名稱用備註資料 + 番號標準化
 // 整理歸檔(影音檔新增資料夾放入, 非影音非資料夾的刪掉)
 // 無法辨識的影音和資料夾移到temp
-function step1 () { 
-  var rule = 1
-
+function step1 (rule) { 
   fs.readdir(route, function(err, files) {
     // 這邊用async做 （一次限制個位數筆）
     //files.forEach(function(file){
@@ -53,12 +49,8 @@ function step1 () {
         }
 
         // 依規則的完整組合名稱
-        var fullName = ''
         var noteData = ''
         var fanNum = ''
-        var mvName = ''
-        var saleName = ''
-        var imgUrl = ''
 
         getSplitNoteDataFanNum(file, function(n, f){
           noteData = n
@@ -67,47 +59,16 @@ function step1 () {
           console.log('番號名稱', fanNum)
         })
 
-        if (rule === 1) {
-          var getMvName = function () {
-            craw.getMvName(fanNum, function(m){
-              // 失敗則先不處理這筆
-              if (!m) {
-                return asyncCb()
-              }
-
-              mvName = m
-              getSaleNum()
-            })
+        return getDataByRule(rule, noteData, fanNum, function(err, fullName, imgUrl){
+          if(err) {
+            // 先不處理這筆
+            return asyncCb()
           }
 
-          var getSaleNum = function () {
-            craw.getSaleNum(fanNum, function(s){
-              // 失敗待處理
+          return handleFolder(fullName, imgUrl)
+        })
 
-              saleName = s
-              getImgUrl()
-            })
-          }
-
-          var getImgUrl = function () {
-            craw.getImgUrl(fanNum, function(i){
-              // 失敗則先不處理這筆
-              if (!i) {
-                return asyncCb()
-              }
-
-              imgUrl = i
-
-              fullName = noteData + saleName + mvName + '_' + fanNum
-
-              return handleFolder()
-            }) 
-          }
-
-          return getMvName()
-        }
-
-        function handleFolder() {
+        function handleFolder(fullName, imgUrl) {
           // 先正名資料夾, 並且搬到ok
           renameFolder(route + '/' + file, route + '/ok/' + fullName, function(){
             download(imgUrl, route + '/ok/' + fullName + '/' + fullName + '.jpg', function(){
@@ -164,14 +125,10 @@ function step1 () {
             }) 
           }
 
-         // 依規則的完整組合名稱
-          var fullName = ''
           var noteData = ''
           var fanNum = ''
-          var mvName = ''
-          var saleName = ''
-          var imgUrl = ''
 
+          // 將檔名拆成註解和番號
           getSplitNoteDataFanNum(handledName, function(n, f){
             noteData = n
             fanNum = f
@@ -179,54 +136,22 @@ function step1 () {
             console.log('番號名稱', fanNum)
           })
 
-          if (rule === 1) {
-            var getMvName = function () {
-              craw.getMvName(fanNum, function(m){
-                // 失敗則先不處理這筆
-                if (!m) {
-                  return asyncCb()
-                }
-
-                mvName = m
-                getSaleNum()
-              })
+          return getDataByRule(rule, noteData, fanNum, function(err, fullName, imgUrl){
+            if(err) {
+              // 先不處理這筆
+              return asyncCb()
             }
 
-            var getSaleNum = function () {
-              craw.getSaleNum(fanNum, function(s){
-                // 失敗待處理
+            return moveVideo(fullName, imgUrl)
+          })
 
-                saleName = s
-                getImgUrl()
-              })
-            }
-
-            var getImgUrl = function () {
-              craw.getImgUrl(fanNum, function(i){
-                // 失敗則先不處理這筆
-                if (!i) {
-                  return asyncCb()
-                }
-
-                imgUrl = i
-
-                fullName = noteData + saleName + mvName + '_' + fanNum
-
-                // 爬蟲失敗則先不處理
-                return moveVideo()
-              }) 
-            }
-
-            return getMvName()
-          }
-
-          function moveVideo() {
+          function moveVideo(fullName, imgUrl) {
             // 新增資料夾
             mkFolder(route + '/ok/' + fullName, function(){
               download(imgUrl, route + '/ok/' + fullName + '/' + fullName + '.jpg', function(){
                 console.log('download')
               });
-              
+
               // 移動影片並更名
               renameFolder(route + '/' + file, route + '/ok/' + fullName + '/' + fullName + extraName, function(){
                 return asyncCb()
@@ -248,119 +173,86 @@ function step1 () {
   })
 }
 
-function dryRun () { 
-  fs.readdir(route, function(err, files) {
-    // 這邊用async做 （一次限制個位數筆）
-    //files.forEach(function(file){
-    async.eachLimit(files, 1, function(file, asyncCb) {
-      console.log('開始幹')
-      console.log(file)
+function getDataByRule(rule, noteData, fanNum, cb) {
+ // 依規則的完整組合名稱
+  var fullName = ''
+  var mvName = ''
+  var saleName = ''
+  var imgUrl = ''
 
-      var noteDataFanNum
-
-      // 是資料夾 - 
-      if (fs.lstatSync(route + '/' + file).isDirectory()) {
-        if(file == 'temp') {
-          console.log('temp跳過')
-
-          return asyncCb()
+  if (rule === 1) {
+    var getMvName = function () {
+      craw.getMvName(fanNum, function(err, m){
+        // 失敗則先不處理這筆
+        if (!m) {
+          return cb(new Error('get mv name error'))
         }
 
-        noteDataFanNum = getNoteDataFanNum(file)
-        console.log('noteDataFanNum=',noteDataFanNum)
-        // 抓不到番號就移到temp
-        if(noteDataFanNum == '') {
-          console.log('folder noteDataFanNum not correct', noteDataFanNum)
-          console.log('跳過')
-          
-          return moveToTemp(route + '/' + file, route, file, function(){
-            return asyncCb()
-          }) 
-          //return asyncCb()
+        mvName = m
+        getSaleNum()
+      })
+    }
+
+    var getSaleNum = function () {
+      craw.getSaleNum(fanNum, function(err, s){
+        // 失敗待處理
+       if (!s && err) {
+          return cb(new Error('get sale num error'))
         }
 
-        // 爬蟲失敗則先不處理
-        return handleFile()
+        saleName = s
+        getImgUrl()
+      })
+    }
 
-        function handleFile() {
-          // 先正名資料夾
-          renameFolder(route + '/' + file, route + '/' + noteDataFanNum, function(){
-            fs.readdir(route + '/' + noteDataFanNum, function(err, files) {
-              async.eachLimit(files, 1, function(file, asyncCb2) {
-                if (file.match(/\.mp4$|\.avi$/)) {
-                  // 取得副檔名
-                  var extraName = file.replace(/.*(\.mp4$|\.avi$)/g, '$1')
-
-                  // 去掉副檔名
-                  var handledName = file.replace(/(.*)\.mp4$|\.avi$/g, '$1')
-                  noteDataFanNum = getNoteDataFanNum(handledName)
-
-
-                  // 將影音檔正名
-                  renameFolder(route + '/' + noteDataFanNum + '/' + file, route + '/' + noteDataFanNum + '/' + noteDataFanNum + extraName, function(){
-                    return asyncCb2()
-                  })
-                } else {
-                  // 刪除影音外的檔案
-
-                  // 改成有callback
-                  fs.unlinkSync(route + '/' + noteDataFanNum + '/' + file);
-                  return asyncCb2()
-                }
-              }, function(err) {
-                console.log('內部迴圈結束')
-                return asyncCb()
-              })
-            })
-          }) 
+    var getImgUrl = function () {
+      craw.getImgUrl(fanNum, function(err, i){
+        // 失敗則先不處理這筆
+        if (!i) {
+          return cb(new Error('get img error'))
         }
-      } else {
-        // 判斷是不是所有影音檔的副檔名
-        if (file.match(/\.mp4$|\.avi$/)) {
 
-          // 取得副檔名
-          var extraName = file.replace(/.*(\.mp4$|\.avi$)/g, '$1')
+        imgUrl = i
 
-          // 去掉副檔名
-          var handledName = file.replace(/(.*)\.mp4$|\.avi$/g, '$1')
+        fullName = noteData + saleName + mvName + '_' + fanNum
 
-          noteDataFanNum = getNoteDataFanNum(handledName)
+        return cb(null, fullName, imgUrl)
+      }) 
+    }
 
-          // 無法取得番號則移到暫存
-          if(noteDataFanNum == '') {
-            console.log('mv noteDataFanNum not correct', noteDataFanNum)
-            console.log('mv移到暫存')
+    return getMvName()
+  }
 
-            return moveToTemp(route + '/' + file, route, file, function(){
-              return asyncCb()
-            }) 
-          }
-
-          // 爬蟲失敗則先不處理
-          return handleFile()
-
-          function handleFile() {
-            // 新增資料夾
-            mkFolder(route + '/' + noteDataFanNum, function(){
-              // 移動影片並更名
-              renameFolder(route + '/' + file, route + '/' + noteDataFanNum + '/' + noteDataFanNum + extraName, function(){
-                return asyncCb()
-              }) 
-            })
-          }
-        } else {
-          // 第一層不是影音和folder的砍掉
-          fs.unlinkSync(route + '/' + file)
-          return asyncCb()
+  if (rule === 2) {
+    var getMvName = function () {
+      craw.getMvName(fanNum, function(err, m){
+        // 失敗則先不處理這筆
+        if (!m) {
+          return cb(new Error('get mv name error'))
         }
-      }
-    }, function(err) {
-      console.log('step 1 done')
-    })
 
-       //console.log(getNoteDataFanNum(file))
-    //})
-  })
+        mvName = m
+        return getImgUrl()
+      })
+    }
+
+    var getImgUrl = function () {
+      craw.getImgUrl(fanNum, function(err, i){
+        // 失敗則先不處理這筆
+        if (!i) {
+          return cb(new Error('get img error'))
+        }
+
+        imgUrl = i
+
+        fullName = noteData + fanNum + '_' + mvName 
+        console.log(fullName)
+        return cb(null, fullName, imgUrl)
+      }) 
+    }
+
+    return getMvName()
+  }
 }
 
 function mkFolder(route, cb) {
@@ -461,6 +353,9 @@ function getNoteDataFanNum(fileName){
     fanNum = fileName.replace(/^([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
   }
 
+  //番號轉大寫
+  fanNum = fanNum.toUpperCase()
+
   var output = noteData + fanNum
 
   if (fanNum == '') {
@@ -508,6 +403,9 @@ function getSplitNoteDataFanNum(fileName, cb){
   if (fileName.match(/^[a-zA-Z]+[0-9]+$/)) {
     fanNum = fileName.replace(/^([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
   }
+
+  //番號轉大寫
+  fanNum = fanNum.toUpperCase()
 
   return cb(noteData, fanNum)
 }

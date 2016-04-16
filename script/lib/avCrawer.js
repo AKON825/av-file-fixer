@@ -20,12 +20,25 @@ function AvCrawer () {
    */
   this.getMvName = function (fanNum, cb) {
     uri = 'https://www.javbus.com/' + fanNum
-    apiRequest(method, uri, params, function(body){
+    apiRequest(method, uri, params, function(err, body){
+        if (err) {
+          return cb(err)
+        }
 
         var $ = cheerio.load(body)
-        var videoName = $('h3').text()
+        var mvName = $('h3').text()
 
-        return cb(videoName)
+
+        var i = mvName.indexOf(fanNum)
+        // 若片名中包含番號, 將其去除
+        if(i != -1) {
+          mvName = mvName.substring(fanNum.length, mvName.length)
+        }
+
+        // 前後去空格
+        mvName = mvName.trim()
+
+        return cb(null, mvName)
     })
   }
 
@@ -34,7 +47,10 @@ function AvCrawer () {
    */
   this.getSaleNum = function (fanNum, cb) {
     uri = 'http://www.avdvd.net/shop/advanced_search_result.php?keywords=' + fanNum + '&x=8&y=8&search_in_select=1&categories_id='
-      apiRequest(method, uri, params, function(body){
+      apiRequest(method, uri, params, function(err, body){
+        if (err) {
+          return cb(err)
+        }
 
         var $ = cheerio.load(body)
         var saleNamesObjs = $('tr td.productListing-data font[color="red"]')
@@ -82,7 +98,7 @@ function AvCrawer () {
         } 
 
         // 選DF開頭的處理s
-        return cb(saleName)
+        return cb(null, saleName)
     })
   }
 
@@ -91,12 +107,15 @@ function AvCrawer () {
    */
   this.getImgUrl = function (fanNum, cb) {
       uri = 'https://www.javbus.com/' + fanNum
-      apiRequest(method, uri, params, function(body){
+      apiRequest(method, uri, params, function(err, body){
+        if (err) {
+          return cb(err)
+        }
 
         var $ = cheerio.load(body)
         var imageUrl = $('.container .row.movie .screencap a.bigImage').attr('href')
 
-        return cb(imageUrl)
+        return cb(null, imageUrl)
     })
   }
 }
@@ -113,13 +132,6 @@ function apiRequest (method, uri, params, cb) {
   // durian連線設定值
   var parameters = {
     headers: {
-    //   // 'Host': '2captcha.com',
-
-    //   //'Accept-Language': 'zh-TW',
-    //   //'Content-Type': 'application/json; charset=UTF-8',
-    //   // 'Origin': 'http://localhost:3000'
-    //   //'Content-Encoding':'gzip',
-    //   'Accept-Encoding':'gzip',
       'Content-Type': 'text/html; charset=UTF-8'
     }
   }
@@ -143,29 +155,27 @@ function apiRequest (method, uri, params, cb) {
     return checkError()
 
     function checkError () {
-      var errorMsg
+      var errorMsg = ''
 
       if (error) {
         errorMsg = error.message
 
-        return console.log(errorMsg)
+        return cb(new Error(errorMsg))
       }
 
-      // if (response.statusCode !== 200) {
-      //   errorMsg = util.format('HTTP %s error', response.statusCode)
+      console.log('狀態馬', response.statusCode)
 
-      //   return writeErrorLog(errorMsg)
-      // }
+      if (response.statusCode !== 200) {
+        errorMsg = 'HTTP ' + response.statusCode + ' error'
 
-      //var body = JSON.parse(response.body)
+        return cb(new Error(errorMsg))
+      }
+
       var body = response.body
 
       console.log('花費時間', elapse)
 
-
-      //var preLink = $('.btn-group.pull-right a').eq(1).attr('href')
-
-      return cb(body)
+      return cb(null, body)
     }
   })
 }

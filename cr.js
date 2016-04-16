@@ -2,14 +2,18 @@ var craw = require('./script/lib/avCrawer.js')()
 var fs = require('fs')
 var request = require('request')
 
-// craw.getMvName('venu-592', function(mvName){
-//   console.log(mvName)
-// })
+craw.getMvName('venu-592ㄎdd', function(err, mvName) {
+  if (err) {
+    console.log(err.message)
+  }
 
-craw.getSaleNum('venu-592fdfd', function(saleName){
-//craw.getSaleNum('pppd-340', function(mvName){
-  console.log(saleName)
+  console.log(mvName)
 })
+
+// craw.getSaleNum('venu-592fdfd', function(saleName){
+// //craw.getSaleNum('pppd-340', function(mvName){
+//   console.log(saleName)
+// })
 
 // craw.getImgUrl('venu-592', function(imgUrl){
 //   download(imgUrl, '/Users/akon825/avs1/dl.png', function(){
