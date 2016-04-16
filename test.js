@@ -1,10 +1,13 @@
 var fs = require('fs')
+var async = require('async')
 
 var route = '/Users/akon825/avs1'
 
 fs.readdir(route, function(err, files) {
   // 這邊用async做 （一次限制個位數筆）
-  files.forEach(function(file){
+  //files.forEach(function(file){
+  async.eachLimit(files, 1, function(file, asyncCb) {
+
     console.log(file)
 
     var avNum
@@ -16,7 +19,8 @@ fs.readdir(route, function(err, files) {
       // 先正名資料夾
       renameFolder(route + '/' + file, route + '/' + avNum, function(){
         fs.readdir(route + '/' + avNum, function(err, files) {
-          files.forEach(function(file){
+          async.eachLimit(files, 1, function(file, asyncCb2) {
+          //files.forEach(function(file){
             
             if (file.match(/\.mp4$|\.avi$/)) {
               // 取得副檔名
@@ -31,15 +35,18 @@ fs.readdir(route, function(err, files) {
 
               // 將影音檔正名
               renameFolder(route + '/' + avNum + '/' + file, route + '/' + avNum + '/' + avNum + extraName, function(){
-
+                asyncCb2()
               })
             } else {
               // 刪除影音外的檔案
               fs.unlinkSync(route + '/' + avNum + '/' + file);
+              asyncCb2()
             }
-
-            
+          }, function(err) {
+            console.log('內部迴圈結束')
+            asyncCb()
           })
+          //})
         })
       }) 
     } else {
@@ -60,18 +67,22 @@ fs.readdir(route, function(err, files) {
         mkFolder(route + '/' + avNum, function(){
           // 移動影片並更名
           renameFolder(route + '/' + file, route + '/' + avNum + '/' + avNum + extraName, function(){
-
+            asyncCb()
           }) 
         })
         //mkFolder(route + '/' + avNum)
       } else {
         // 第一層不是影音和folder的砍掉
-        fs.unlinkSync(route + '/' + file);
+        fs.unlinkSync(route + '/' + file)
+        asyncCb()
       }
     }
+  }, function(err) {
+    console.log('step 1 done')
+  })
 
      //console.log(getAvNum(file))
-  })
+  //})
 })
 
 function mkFolder(route, cb) {
