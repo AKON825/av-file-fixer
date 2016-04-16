@@ -47,7 +47,7 @@ function AvCrawer () {
 
           // 去所有空格
           saleName = saleName.replace(/\s+/g, '') 
-          saleName = saleName.replace(/\[+|\]/g, '') 
+          //saleName = saleName.replace(/\[+|\]/g, '') 
         } 
 
         if (saleNamesObjs.length > 1) {
@@ -63,7 +63,7 @@ function AvCrawer () {
             tempName = saleNamesObj.text()
 
             // 去所有空格
-            //tempName = tempName.replace(/\s+/g, '') 
+            tempName = tempName.replace(/\s+/g, '') 
             //tempName = tempName.replace(/\[+|\]+/g, '')
 
             // 如果有Ｄ開頭的販售編號就取Ｄ開頭的
