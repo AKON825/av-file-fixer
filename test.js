@@ -22,7 +22,8 @@ function step1 () {
 
           return asyncCb()
         }
-        avNum = getAvNum(file)
+
+        avNum = getSaleNumFanNum(file)
         console.log('avNum=',avNum)
         if(avNum == '') {
           console.log('folder avNum not correct', avNum)
@@ -46,7 +47,7 @@ function step1 () {
 
                 // 去掉副檔名
                 var handledName = file.replace(/(.*)\.mp4$|\.avi$/g, '$1')
-                avNum = getAvNum(handledName)
+                avNum = getSaleNumFanNum(handledName)
 
 
                 // 將影音檔正名
@@ -76,7 +77,7 @@ function step1 () {
 
           // 去掉副檔名
           var handledName = file.replace(/(.*)\.mp4$|\.avi$/g, '$1')
-          avNum = getAvNum(handledName)
+          avNum = getSaleNumFanNum(handledName)
 
           if(avNum == '') {
             console.log('mv avNum not correct', avNum)
@@ -106,7 +107,7 @@ function step1 () {
       console.log('step 1 done')
     })
 
-       //console.log(getAvNum(file))
+       //console.log(getSaleNumFanNum(file))
     //})
   })
 }
@@ -158,35 +159,41 @@ function moveToTemp(fileRoute, rootRoute, fileName, cb) {
 }
 
 
-// fs.mkdir(route + '/createByffssss', function(err, result){
-//   console.log('新增結束', err, result)
+function getSaleNumFanNum(fileName){
+  // 販售編號
+  var saleNum = ''
+  // 番號
+  var fanNum = ''
 
-//   fs.rename(route + '/createByffssss', route + '/renameByffssss', function(err, result){
-//     console.log('修改結束 ', err, result)
-//   })
-// })
+  // 去所有空格
+  fileName = fileName.replace(/\s+/g, '') 
 
-function getAvNum(fileName){
-  var avNum = ''
+  // 先抓出販售編號 ex (GGG--FBSP)
+  if (fileName.match(/^[(].*[)]/)) {
+    console.log('幹', fileName, '有括號啦')
+    console.log('乾濕分離1', fileName.replace(/^([(].*[)])(.*)/g, '$1'))
+    saleNum = fileName.replace(/^([(].*[)])(.*)/g, '$1')
+    console.log('乾濕分離2', fileName.replace(/^([(].*[)])(.*)/g, '$2'))
+    fileName = fileName.replace(/^([(].*[)])(.*)/g, '$2')
+  }
 
   if (fileName.match(/^[0-9]+[-][a-zA-Z]+[0-9]+$/)) {
-    //avNum = file.replace(/([a-z\d])([A-Z]+)/g, '$1_$2')
-    avNum = fileName.replace(/^[0-9]+[-]([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
+    fanNum = fileName.replace(/^[0-9]+[-]([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
   }
 
   if (fileName.match(/^[0-9]+[a-zA-Z]+[0-9]+$/)) {
-    avNum = fileName.replace(/^[0-9]+([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
+    fanNum = fileName.replace(/^[0-9]+([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
   }
 
   if (fileName.match(/^[a-zA-Z]+[-][0-9]+$/)) {
-    avNum = fileName
+    fanNum = fileName
   }
 
   if (fileName.match(/^[a-zA-Z]+[0-9]+$/)) {
-    avNum = fileName.replace(/^([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
+    fanNum = fileName.replace(/^([a-zA-Z]+)([0-9]+$)/g, '$1-$2')
   }
 
-  return avNum
+  return saleNum + fanNum
 }
 
 
