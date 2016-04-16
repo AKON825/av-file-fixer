@@ -1,4 +1,4 @@
-var craw = require('./avCrawer.js')()
+var craw = require('./script/lib/avCrawer.js')()
 var fs = require('fs')
 var request = require('request')
 
