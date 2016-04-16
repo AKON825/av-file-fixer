@@ -5,6 +5,9 @@ var route = '/Users/akon825/avs1'
 
 newTemp(route, step1)
 
+// 將檔案名稱用備註資料 + 番號標準化
+// 整理歸檔(影音檔新增資料夾放入, 非影音非資料夾的刪掉)
+// 無法辨識的影音和資料夾移到temp
 function step1 () { 
   fs.readdir(route, function(err, files) {
     // 這邊用async做 （一次限制個位數筆）
