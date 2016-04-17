@@ -3,7 +3,6 @@ module.exports = AvProcess
 var fs = require('fs')
 var async = require('async')
 var request = require('request')
-var route = '/Users/akon825/avs1'
 var craw = require('./avCrawer.js')()
 
 function AvProcess () {
@@ -11,10 +10,12 @@ function AvProcess () {
     return new AvProcess()
   }
 
-  this.processByRule1 = function(rule){
+  this.processByRule1 = function(rule, route){
+    route = '/Users/akon825/avs1'
+    
     newOk(route, function(){
       newTemp(route, function(){
-        return step1(rule)
+        return step1(rule, route)
       })
     })
   }
@@ -23,7 +24,7 @@ function AvProcess () {
 // 將檔案名稱用備註資料 + 番號標準化
 // 整理歸檔(影音檔新增資料夾放入, 非影音非資料夾的刪掉)
 // 無法辨識的影音和資料夾移到temp
-function step1 (rule) { 
+function step1 (rule, route) { 
   fs.readdir(route, function(err, files) {
     // 這邊用async做 （一次限制個位數筆）
     //files.forEach(function(file){

@@ -1,19 +1,69 @@
-<html>
-<head>
-   <title>Hello node-webkit</title>
-</head>
-<body>
-<div>
-   <h1>Hello node-webkit</h1>
-</div>
-<div>
-   <input name='route' value='/Users/'></input>
-   <button class='read'>read</button>
-</div>
-<div>
-   <h3 class='list'>list</h1>
-</div>
-<script   src="https://code.jquery.com/jquery-2.2.3.js"   integrity="sha256-laXWtGydpwqJ8JA+X9x2miwmaiKhn8tVmOVEigRNtP4="   crossorigin="anonymous"></script>
-<script type="text/javascript" src="script/app.js"></script>
-</body>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>av檔案整理器</title>
+    <!-- Bootstrap -->
+    <link href="public/bower-components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="public/bower-components/components-font-awesome/css/font-awesome.min.css">
+    <style type="text/css">
+    body {
+      /*color: #ffffff;*/
+      background-color: #18bc9c
+    }
+
+    .file-area {
+        padding:1px;
+        overflow: auto;
+        height: 400px;
+    }
+
+    .list-group-item {
+      padding: 5px 5px
+    }
+    </style>
+  </head>
+  <body>
+    <div class="col-md-12">
+      <div class="col-md-9">
+        <h1>Hello, world!</h1>
+        <button type="button" class="btn btn-default">Ｃ槽</button>
+        <button type="button" class="btn btn-default">Ｄ槽</button>
+        <button type="button" class="btn btn-default">Ｅ槽</button>
+        <br>
+        <br>
+        <div class="form-group">
+          <label for="usr">路徑:</label>
+          <input type="text" class="form-control route" id="usr" value="/Users/akon825/avs3">
+        </div>
+        <div class="panel panel-default">
+          <div class="file-area panel-body list-group">
+            <a href="#" class="file-item list-group-item hide">
+              <p class="list-group-item-text"></p>
+            </a>
+            <a href="#" class="file-item list-group-item active">
+              <p class="list-group-item-text">123</p>
+            </a>
+            <a href="#" class="file-item list-group-item">
+              <p class="list-group-item-text">123</p>
+            </a>
+            <a href="#" class="file-item list-group-item">
+              <p class="list-group-item-text">123</p>
+            </a>
+          </div>
+        </div>
+        <hr>
+        <button type="button" class="btn btn-default select-all">全選</button>
+        <button type="button" class="btn btn-default select-nothing">全不選</button>
+        <button type="button" class="btn btn-default select-reverse">反選</button>
+      </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="public/bower-components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="script/app.js"></script>
+  </body>
 </html>
