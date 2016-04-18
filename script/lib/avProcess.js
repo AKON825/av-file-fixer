@@ -10,10 +10,10 @@ function AvProcess () {
     return new AvProcess()
   }
 
-  this.processByRule1 = function(rule, route, files){
+  this.processByRule1 = function(rule, route, files, cb){
     newOk(route, function(){
       newTemp(route, function(){
-        return step1(rule, route, files)
+        return step1(rule, route, files, cb)
       })
     })
   }
@@ -22,7 +22,7 @@ function AvProcess () {
 // 將檔案名稱用備註資料 + 番號標準化
 // 整理歸檔(影音檔新增資料夾放入, 非影音非資料夾的刪掉)
 // 無法辨識的影音和資料夾移到temp
-function step1 (rule, route, files) { 
+function step1 (rule, route, files, cb) { 
     route = route.trim()
   //fs.readdir(route, function(err, files) {
     // 這邊用async做 （一次限制個位數筆）
@@ -173,6 +173,7 @@ function step1 (rule, route, files) {
       }
     }, function(err) {
       console.log('step 1 done')
+      return cb(err)
     })
 
        //console.log(getNoteDataFanNum(file))

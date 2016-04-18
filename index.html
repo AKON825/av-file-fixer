@@ -30,8 +30,7 @@
     }
 
     .process-btn {
-      color: red;
-      margin-top: 223px
+      margin-top: 200px
     }
 
     </style>
@@ -72,15 +71,6 @@
               <p class="list-group-item-text"></p>
               <input type="text" class="file-name hide" value="">
             </a>
-            <a href="#" class="file-item list-group-item active">
-              <p class="list-group-item-text">123</p>
-            </a>
-            <a href="#" class="file-item list-group-item">
-              <p class="list-group-item-text">123</p>
-            </a>
-            <a href="#" class="file-item list-group-item">
-              <p class="list-group-item-text">123</p>
-            </a>
           </div>
         </div>
         <hr>
@@ -95,20 +85,23 @@
             <div class="radio-group">
               <div class="radio">
                 <label>
-                  <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                  <input type="radio" name="optionsRadios" id="rule1-radio" value="1" checked>
                   備註資料 + 販售編號 + 片名 + _ + 番號
                 </label>
               </div>
               <div class="radio">
                 <label>
-                  <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+                  <input type="radio" name="optionsRadios" id="rule2-radio" value="2">
                   備註資料 + 番號 + _ + 片名
                 </label>
               </div>
             </div>
 
-            <div class="process-btn">
-              <button type="button" class="btn btn-primary btn-lg col-xs-12">處理AV檔案</button>
+            <div class="">
+              <button type="button" class="btn btn-primary btn-lg col-xs-12 process-btn">
+              處理AV檔案
+              <i class="fa fa-spinner fa-spin fa-2x fa-fw margin-bottom hide"></i>
+              </button>
             </div>
           </div>
         </div>

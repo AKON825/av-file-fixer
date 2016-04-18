@@ -66,10 +66,22 @@ $('.process-btn').on('click', function(event){
   })
   console.log(fileAry)
 
-  avProcess.processByRule1(1, fileRoute, fileAry)
+  $('.process-btn').prop('disabled', true)
+  $('.process-btn i').removeClass('hide')
 
-  //processAv(fileRoute, fileAry)
-  //alert(fileAry+fileRoute)
+  var rule = $('input[name="optionsRadios"]:checked').val()
+
+  avProcess.processByRule1(Number(rule), fileRoute, fileAry, function(err){
+    if(err) {
+      alert('處理發生錯誤, 錯誤訊息: ' + err)
+    }
+
+    $('.process-btn').prop('disabled', false)
+    $('.process-btn i').addClass('hide')
+    $('.file-item').removeClass('active')
+
+    $("input.route").change();
+  })
 });
 
 $(function() {
