@@ -3,6 +3,7 @@ var moment = require('moment')
 var fs = require('fs')
 var async = require('async')
 var path = require('path')
+var avProcess = require('./script/lib/avProcess.js')()
 
 $(document).on('click', '.pre-path', function(event){
   var originRoute = $("input.route").val()
@@ -65,8 +66,10 @@ $('.process-btn').on('click', function(event){
   })
   console.log(fileAry)
 
+  avProcess.processByRule1(1, fileRoute, fileAry)
+
   //processAv(fileRoute, fileAry)
-  alert(fileAry+fileRoute)
+  //alert(fileAry+fileRoute)
 });
 
 $(function() {

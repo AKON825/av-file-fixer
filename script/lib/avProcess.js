@@ -10,12 +10,10 @@ function AvProcess () {
     return new AvProcess()
   }
 
-  this.processByRule1 = function(rule, route){
-    route = '/Users/akon825/avs1'
-    
+  this.processByRule1 = function(rule, route, files){
     newOk(route, function(){
       newTemp(route, function(){
-        return step1(rule, route)
+        return step1(rule, route, files)
       })
     })
   }
@@ -24,8 +22,9 @@ function AvProcess () {
 // 將檔案名稱用備註資料 + 番號標準化
 // 整理歸檔(影音檔新增資料夾放入, 非影音非資料夾的刪掉)
 // 無法辨識的影音和資料夾移到temp
-function step1 (rule, route) { 
-  fs.readdir(route, function(err, files) {
+function step1 (rule, route, files) { 
+    route = route.trim()
+  //fs.readdir(route, function(err, files) {
     // 這邊用async做 （一次限制個位數筆）
     //files.forEach(function(file){
     async.eachLimit(files, 1, function(file, asyncCb) {
@@ -33,6 +32,13 @@ function step1 (rule, route) {
       console.log(file)
 
       var noteDataFanNum
+
+      file = file.trim()
+
+      // 檔案不存在則直接中斷
+      if(!fs.existsSync(route + '/' + file)){
+        return asyncCb()
+      }
 
       // 是資料夾 - 
       if (fs.lstatSync(route + '/' + file).isDirectory()) {
@@ -171,7 +177,7 @@ function step1 (rule, route) {
 
        //console.log(getNoteDataFanNum(file))
     //})
-  })
+  //})
 }
 
 function getDataByRule(rule, noteData, fanNum, cb) {
