@@ -22,25 +22,55 @@
     .list-group-item {
       padding: 5px 5px
     }
+
+    .handle-panel {
+        padding:1px;
+        overflow: auto;
+        height: 400px;
+    }
+
+    .process-btn {
+      color: red;
+      margin-top: 223px
+    }
+
     </style>
   </head>
   <body>
-    <div class="col-md-12">
-      <div class="col-md-9">
-        <h1>Hello, world!</h1>
-        <button type="button" class="btn btn-default">Ｃ槽</button>
-        <button type="button" class="btn btn-default">Ｄ槽</button>
-        <button type="button" class="btn btn-default">Ｅ槽</button>
+    <div class="col-sm-12">
+      <div class="col-sm-8">
+
         <br>
-        <br>
-        <div class="form-group">
-          <label for="usr">路徑:</label>
-          <input type="text" class="form-control route" id="usr" value="/Users/akon825/avs3">
+        <div class="dropdown">
+          <button class="btn btn-default dropdown-toggle" type="button" id="diskMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            選擇磁碟
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu disk-menu" aria-labelledby="diskMenu">
+          </ul>
         </div>
+        <br>
+        <div class="input-group">
+          <input type="text" class="form-control route" id="usr" value="/Users/akon825/avs3" aria-label="...">
+          <div class="input-group-btn">
+            <button type="button" class="btn btn-default pre-path">
+            <i class="fa fa-mail-reply" aria-hidden="true"></i>
+            回上層
+            </button>
+          </div><!-- /btn-group -->
+        </div><!-- /input-group -->
+      </div>
+
+      <div class="col-sm-12">
+        <br>
+      </div>
+
+      <div class="col-sm-8">
         <div class="panel panel-default">
           <div class="file-area panel-body list-group">
             <a href="#" class="file-item list-group-item hide">
               <p class="list-group-item-text"></p>
+              <input type="text" class="file-name hide" value="">
             </a>
             <a href="#" class="file-item list-group-item active">
               <p class="list-group-item-text">123</p>
@@ -57,6 +87,32 @@
         <button type="button" class="btn btn-default select-all">全選</button>
         <button type="button" class="btn btn-default select-nothing">全不選</button>
         <button type="button" class="btn btn-default select-reverse">反選</button>
+      </div>
+      <div class="col-sm-4">
+        <div class="panel panel-default handle-panel">
+          <div class="panel-heading">選則處理規則</div>
+          <div class="panel-body">
+            <div class="radio-group">
+              <div class="radio">
+                <label>
+                  <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                  備註資料 + 販售編號 + 片名 + _ + 番號
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+                  備註資料 + 番號 + _ + 片名
+                </label>
+              </div>
+            </div>
+
+            <div class="process-btn">
+              <button type="button" class="btn btn-primary btn-lg col-xs-12">處理AV檔案</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 

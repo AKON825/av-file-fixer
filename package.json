@@ -10,7 +10,7 @@
   "window": {
     "title": "node-webkit demo",
     "icon": "link.png",
-    "width": 1000,
+    "width": 1200,
     "height": 800,
     "position": "mouse"
   }
